@@ -23,7 +23,7 @@ class UIBuilder:
         self.font_bold = ('Segoe UI', 11, 'bold')
         self.font_label = ('Segoe UI', 11, 'bold')
         self.font_header = ('Segoe UI', 12, 'bold')
-        self.font_database = ('Segoe UI', 11, 'bold')
+        self.font_database = ('Segoe UI', 12, 'bold')  # Increased from 11 to 12
         self.font_subtitle = ('Segoe UI', 14, 'bold')
         self.font_small = ('Segoe UI', 10)
 
@@ -52,6 +52,28 @@ class UIBuilder:
         self.save_log_btn = None
         self.status_bar = None
         self.db_vars_frame = None
+
+        # Configure custom checkbox style
+        self._configure_checkbox_style()
+
+    def _configure_checkbox_style(self):
+        """Configure custom checkbox style with proper checkmark symbol."""
+        style = ttk.Style()
+        
+        # Configure custom checkbox style for database list
+        style.configure(
+            'Database.TCheckbutton',
+            font=self.font_database,  # Bold and bigger font
+            focuscolor='none',
+            background=self.bg_color,
+            foreground=self.primary_color
+        )
+        
+        # Map states for proper checkbox appearance
+        style.map('Database.TCheckbutton',
+            background=[('active', self.bg_color), ('pressed', self.bg_color)],
+            foreground=[('active', self.primary_color), ('pressed', self.primary_color)]
+        )
 
     # [Rest of the methods remain exactly the same as in the previous version]
 
@@ -356,9 +378,9 @@ class UIBuilder:
                 text=db, 
                 variable=var, 
                 command=checkbox_toggle_command,
-                style='Bold.TCheckbutton'
+                style='Database.TCheckbutton'  # Changed to use the new custom style
             )
-            cb.pack(anchor="w", padx=5, pady=3)
+            cb.pack(anchor="w", padx=8, pady=5)  # Increased padding for better spacing
             self.db_vars[db] = var
 
     def get_selected_databases(self):

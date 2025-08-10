@@ -23,7 +23,7 @@ class UIBuilder:
         self.font_bold = ('Segoe UI', 11, 'bold')
         self.font_label = ('Segoe UI', 11, 'bold')
         self.font_header = ('Segoe UI', 12, 'bold')
-        self.font_database = ('Segoe UI', 12, 'bold')  # Increased from 11 to 12
+        self.font_database = ('Segoe UI', 12, 'bold')
         self.font_subtitle = ('Segoe UI', 14, 'bold')
         self.font_small = ('Segoe UI', 10)
 
@@ -40,7 +40,9 @@ class UIBuilder:
         
         # Main UI elements
         self.select_all_var = None
+        self.select_all_cb = None
         self.db_vars = {}
+        self.db_checkbuttons = {}
         self.db_var = None
         self.db_dropdown = None
         self.tree = None
@@ -52,30 +54,6 @@ class UIBuilder:
         self.save_log_btn = None
         self.status_bar = None
         self.db_vars_frame = None
-
-        # Configure custom checkbox style
-        self._configure_checkbox_style()
-
-    def _configure_checkbox_style(self):
-        """Configure custom checkbox style with proper checkmark symbol."""
-        style = ttk.Style()
-        
-        # Configure custom checkbox style for database list
-        style.configure(
-            'Database.TCheckbutton',
-            font=self.font_database,  # Bold and bigger font
-            focuscolor='none',
-            background=self.bg_color,
-            foreground=self.primary_color
-        )
-        
-        # Map states for proper checkbox appearance
-        style.map('Database.TCheckbutton',
-            background=[('active', self.bg_color), ('pressed', self.bg_color)],
-            foreground=[('active', self.primary_color), ('pressed', self.primary_color)]
-        )
-
-    # [Rest of the methods remain exactly the same as in the previous version]
 
     def build_connection_ui(self, connect_command, quit_command, status_text_var, last_server=None, last_username=None):
         """Build the modern connection UI."""
@@ -282,13 +260,15 @@ class UIBuilder:
         select_all_frame = tk.Frame(cf, bg=self.bg_color)
         select_all_frame.pack(fill="x", pady=(0,5))
         self.select_all_var = tk.BooleanVar()
-        ttk.Checkbutton(
+        self.select_all_cb = tk.Label(
             select_all_frame, 
-            text="Select All Databases", 
-            variable=self.select_all_var, 
-            command=toggle_select_all_command,
-            style='Bold.TCheckbutton'
-        ).pack(side="left")
+            text="☐ Select All Databases",
+            font=self.font_database,
+            bg=self.bg_color,
+            fg=self.primary_color
+        )
+        self.select_all_cb.pack(side="left")
+        self.select_all_cb.bind("<Button-1>", lambda e: [self.select_all_var.set(not self.select_all_var.get()), toggle_select_all_command(), self.update_select_all_symbol()])
         
         ttk.Label(
             cf, 
@@ -365,23 +345,41 @@ class UIBuilder:
         tf.grid_rowconfigure(0,weight=1)
         tf.grid_columnconfigure(0,weight=1)
 
+    def update_select_all_symbol(self):
+        """Update Select All checkbox symbol based on its state."""
+        if self.select_all_var.get():
+            self.select_all_cb.configure(text="✔ Select All Databases")
+        else:
+            self.select_all_cb.configure(text="☐ Select All Databases")
+
     def populate_db_checkboxes(self, databases, checkbox_toggle_command):
-        """Dynamically populate database checkboxes with enhanced styling."""
+        """Dynamically populate database checkboxes with custom symbols."""
         for widget in self.db_vars_frame.winfo_children():
             widget.destroy()
         self.db_vars = {}
+        self.db_checkbuttons = {}
 
         for db in databases:
             var = tk.BooleanVar()
-            cb = ttk.Checkbutton(
+            cb = tk.Label(
                 self.db_vars_frame, 
-                text=db, 
-                variable=var, 
-                command=checkbox_toggle_command,
-                style='Database.TCheckbutton'  # Changed to use the new custom style
+                text=f"☐ {db}",
+                font=self.font_database,
+                bg=self.bg_color,
+                fg=self.primary_color
             )
-            cb.pack(anchor="w", padx=8, pady=5)  # Increased padding for better spacing
+            cb.pack(anchor="w", padx=8, pady=5)
+            cb.bind("<Button-1>", lambda e, d=db: [var.set(not var.get()), checkbox_toggle_command(), self.update_checkbox_symbol(var, d)])
             self.db_vars[db] = var
+            self.db_checkbuttons[db] = cb
+
+    def update_checkbox_symbol(self, var, db_name):
+        """Update checkbox symbol based on its state."""
+        cb = self.db_checkbuttons[db_name]
+        if var.get():
+            cb.configure(text=f"✔ {db_name}")
+        else:
+            cb.configure(text=f"☐ {db_name}")
 
     def get_selected_databases(self):
         return [db for db, var in self.db_vars.items() if var.get()]
@@ -389,6 +387,8 @@ class UIBuilder:
     def toggle_all_db_checkboxes(self, state):
         for var in self.db_vars.values():
             var.set(state)
+        for db in self.db_vars.keys():
+            self.update_checkbox_symbol(self.db_vars[db], db)
 
     def populate_db_dropdown(self, databases):
         self.db_dropdown['values'] = databases

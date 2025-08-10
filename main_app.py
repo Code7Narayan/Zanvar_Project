@@ -15,7 +15,7 @@ from sql_validator import SQLValidator
 class SQLToolApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Zanvar's SQL Tool")
+        self.root.title("Zanvar Group of Industries")
         self.root.geometry("1100x800")
         
         self.setup_styles()

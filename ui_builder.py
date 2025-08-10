@@ -105,7 +105,7 @@ class UIBuilder:
         
         tk.Label(
             logo_frame, 
-            text="ZANVAR INDUSTRIES TOOL", 
+            text="Zanvar Group of Industries", 
             font=('Segoe UI', 18, 'bold'),
             bg="#ffffff", 
             fg=self.primary_color

@@ -436,14 +436,14 @@ class UIBuilder:
         )
         title_label.pack(anchor="w")
         
-        desc_label = tk.Label(
-            title_frame, 
-            text="Write and execute SQL queries with real-time results and analytics", 
-            font=self.font_small, 
-            fg=self.muted_color, 
-            bg=self.card_bg
-        )
-        desc_label.pack(anchor="w", pady=(5, 0))
+        # desc_label = tk.Label(
+        #     title_frame, 
+        #     text="Write and execute SQL queries with real-time results and analytics", 
+        #     font=self.font_small, 
+        #     fg=self.muted_color, 
+        #     bg=self.card_bg
+        # )
+        # desc_label.pack(anchor="w", pady=(5, 0))
 
         # Button section
         button_frame = tk.Frame(query_header, bg=self.card_bg)

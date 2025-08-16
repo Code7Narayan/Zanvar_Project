@@ -411,10 +411,11 @@ class UIBuilder:
         # Query header
         query_header = tk.Frame(frame, bg=self.card_bg, relief="flat")
         query_header.grid(row=0, column=0, sticky="ew", pady=(0, 25))
+        query_header.grid_columnconfigure(0, weight=1)  # Allow title section to expand
         
         # Title section
         title_frame = tk.Frame(query_header, bg=self.card_bg)
-        title_frame.pack(side="left", fill="y")
+        title_frame.grid(row=0, column=0, sticky="w")
         
         title_label = tk.Label(
             title_frame, 
@@ -434,17 +435,19 @@ class UIBuilder:
         )
         desc_label.pack(anchor="w", pady=(5, 0))
 
-        # Button section
+        # Button section - Fixed to not shrink
         button_frame = tk.Frame(query_header, bg=self.card_bg)
-        button_frame.pack(side="right", fill="y", pady=8)
+        button_frame.grid(row=0, column=1, sticky="e", padx=(10, 0))
         
-        self.run_query_btn = ttk.Button(
+        # History button with fixed width to prevent shrinking
+        history_btn = ttk.Button(
             button_frame, 
-            text="▶️ Execute Query", 
-            style='Accent.TButton', 
-            command=query_run_command
+            text="📜 History", 
+            style='Modern.TButton',
+            command=show_history_command,
+            width=12  # Fixed width to prevent shrinking
         )
-        self.run_query_btn.pack(side="right", padx=5)
+        history_btn.grid(row=0, column=0, padx=5, sticky="ew")
 
         clear_query_btn = ttk.Button(
             button_frame, 
@@ -452,15 +455,20 @@ class UIBuilder:
             style='Warning.TButton',
             command=clear_query_command
         )
-        clear_query_btn.pack(side="right", padx=5)
+        clear_query_btn.grid(row=0, column=1, padx=5, sticky="ew")
 
-        history_btn = ttk.Button(
+        self.run_query_btn = ttk.Button(
             button_frame, 
-            text="📜 History", 
-            style='Modern.TButton',
-            command=show_history_command
+            text="▶️ Execute Query", 
+            style='Accent.TButton', 
+            command=query_run_command
         )
-        history_btn.pack(side="right", padx=5)
+        self.run_query_btn.grid(row=0, column=2, padx=5, sticky="ew")
+
+        # Prevent button frame columns from shrinking
+        button_frame.grid_columnconfigure(0, minsize=100)  # History button minimum width
+        button_frame.grid_columnconfigure(1, minsize=120)  # Clear Editor button minimum width
+        button_frame.grid_columnconfigure(2, minsize=130)  # Execute Query button minimum width
 
         # Query pane
         query_pane = ttk.PanedWindow(frame, orient="vertical")
